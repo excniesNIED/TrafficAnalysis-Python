@@ -1,13 +1,11 @@
-#! /usr/bin/env python3
-#  -*- coding: utf-8 -*-
-
-import sys
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter.constants import *
 import os.path
 import os
 from PIL import Image, ImageTk
+import draw_charts  # 导入 draw_charts.py
+import sys
 
 _location = os.path.dirname(__file__)
 
@@ -15,80 +13,80 @@ import TrafficAnalysis_support
 
 _bgcolor = '#d9d9d9'
 _fgcolor = '#000000'
-_tabfg1 = 'black' 
-_tabfg2 = 'white' 
-_bgmode = 'light' 
-_tabbg1 = '#d9d9d9' 
-_tabbg2 = 'gray40' 
+_tabfg1 = 'black'
+_tabfg2 = 'white'
+_bgmode = 'light'
+_tabbg1 = '#d9d9d9'
+_tabbg2 = 'gray40'
 
 _style_code_ran = 0
 def _style_code():
     global _style_code_ran
-    if _style_code_ran: return        
+    if _style_code_ran: return
     try: TrafficAnalysis_support.root.tk.call('source',
-                os.path.join(_location, 'themes', 'default.tcl'))
+                                              os.path.join(_location, 'themes', 'default.tcl'))
     except: pass
     style = ttk.Style()
     style.theme_use('default')
     style.configure('.', font = "TkDefaultFont")
     if sys.platform == "win32":
-       style.theme_use('winnative')    
+        style.theme_use('winnative')
 
     global _images
     _images = (
-         tk.PhotoImage("img_close", data='''R0lGODlhDAAMAIQUADIyMjc3Nzk5OT09PT
+        tk.PhotoImage("img_close", data='''R0lGODlhDAAMAIQUADIyMjc3Nzk5OT09PT
                  8/P0JCQkVFRU1NTU5OTlFRUVZWVmBgYGF hYWlpaXt7e6CgoLm5ucLCwszMzNbW
                  1v//////////////////////////////////// ///////////yH5BAEKAB8ALA
                  AAAAAMAAwAAAUt4CeOZGmaA5mSyQCIwhCUSwEIxHHW+ fkxBgPiBDwshCWHQfc5
                   KkoNUtRHpYYAADs= '''),
-         tk.PhotoImage("img_close_white", data='''R0lGODlhDAAMAPQfAM3NzcjI
+        tk.PhotoImage("img_close_white", data='''R0lGODlhDAAMAPQfAM3NzcjI
                 yMbGxsLCwsDAwL29vbq6urKysrGxsa6urqmpqZ+fn56enpaWloSEhF9fX0ZGR
                 j09PTMzMykpKQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///yH
                 5BAEKAB8ALAAAAAAMAAwAAAUt4CeOZGmaA5mSyQCIwhCUSwEIxHHW+fkxBgPi
                 BDwshCWHQfc5KkoNUtRHpYYAADs='''),
-         tk.PhotoImage("img_closeactive", data='''R0lGODlhDAAMAIQcALwuEtIzFL46
+        tk.PhotoImage("img_closeactive", data='''R0lGODlhDAAMAIQcALwuEtIzFL46
                  INY0Fdk2FsQ8IdhAI9pAIttCJNlKLtpLL9pMMMNTP cVTPdpZQOBbQd60rN+1rf
                  Czp+zLxPbMxPLX0vHY0/fY0/rm4vvx8Pvy8fzy8P//////// ///////yH5BAEK
                  AB8ALAAAAAAMAAwAAAVHYLQQZEkukWKuxEgg1EPCcilx24NcHGYWFhx P0zANBE
                  GOhhFYGSocTsax2imDOdNtiez9JszjpEg4EAaA5jlNUEASLFICEgIAOw== '''),
-         tk.PhotoImage("img_closepressed", data='''R0lGODlhDAAMAIQeAJ8nD64qELE
+        tk.PhotoImage("img_closepressed", data='''R0lGODlhDAAMAIQeAJ8nD64qELE
                  rELMsEqIyG6cyG7U1HLY2HrY3HrhBKrlCK6pGM7lD LKtHM7pKNL5MNtiViNaon
-                  +GqoNSyq9WzrNyyqtuzq+O0que/t+bIwubJw+vJw+vTz+zT z////////yH5BAE
+                  +GqoNSyq9WzrNyzqtuzq+O0que/t+bIwubJw+vJw+vTz+zT z////////yH5BAE
                  KAB8ALAAAAAAMAAwAAAVJIMUMZEkylGKuwzgc0kPCcgl123NcHWYW Fs6Gp2mYB
                  IRgR7MIrAwVDifjWO2WwZzpxkxyfKVCpImMGAeIgQDgVLMHikmCRUpMQgA7 ''')
-        )
+    )
     if _bgmode == "dark":
         style.element_create("close", "image", "img_close_white",
-           ('active', 'pressed',  'img_closepressed'),
-           ('active', 'alternate', 'img_closeactive'), border=8, sticky='')
+                             ('active', 'pressed',  'img_closepressed'),
+                             ('active', 'alternate', 'img_closeactive'), border=8, sticky='')
     else:
         style.element_create("close", "image", "img_close",
-           ('active', 'pressed',  'img_closepressed'),
-           ('active', 'alternate', 'img_closeactive'), border=8, sticky='')
+                             ('active', 'pressed',  'img_closepressed'),
+                             ('active', 'alternate', 'img_closeactive'), border=8, sticky='')
 
     style.layout("ClosetabNotebook", [("ClosetabNotebook.client",
-                                 {"sticky": "nswe"})])
+                                       {"sticky": "nswe"})])
     style.layout("ClosetabNotebook.Tab", [
         ("ClosetabNotebook.tab",
-          { "sticky": "nswe",
-            "children": [
-                ("ClosetabNotebook.padding", {
-                    "side": "top",
-                    "sticky": "nswe",
-                    "children": [
-                        ("ClosetabNotebook.focus", {
-                            "side": "top",
-                            "sticky": "nswe",
-                            "children": [
-                                ("ClosetabNotebook.label", {"side":
-                                  "left", "sticky": ''}),
-                                ("ClosetabNotebook.close", {"side":
-                                    "left", "sticky": ''}),]})]})]})])
+         { "sticky": "nswe",
+           "children": [
+               ("ClosetabNotebook.padding", {
+                   "side": "top",
+                   "sticky": "nswe",
+                   "children": [
+                       ("ClosetabNotebook.focus", {
+                           "side": "top",
+                           "sticky": "nswe",
+                           "children": [
+                               ("ClosetabNotebook.label", {"side":
+                                                               "left", "sticky": ''}),
+                               ("ClosetabNotebook.close", {"side":
+                                                               "left", "sticky": ''}),]})]})]})])
 
     style.map('ClosetabNotebook.Tab', background =
-        [('selected', _bgcolor), ('active', _tabbg1),
-        ('!active', _tabbg2)], foreground =
-        [('selected', _fgcolor), ('active', _tabfg1), ('!active', _tabfg2)])
+    [('selected', _bgcolor), ('active', _tabbg1),
+     ('!active', _tabbg2)], foreground =
+              [('selected', _fgcolor), ('active', _tabfg1), ('!active', _tabfg2)])
     _style_code_ran = 1
 
 class Toplevel1:
@@ -110,24 +108,24 @@ class Toplevel1:
         PNOTEBOOK="ClosetabNotebook"
         self.PNotebook1 = ttk.Notebook(self.top)
         self.PNotebook1.place(relx=0.016, rely=0.069, relheight=0.903
-                , relwidth=0.97)
+                              , relwidth=0.97)
         self.PNotebook1.configure(style=PNOTEBOOK)
         self.PNotebook1_t1 = tk.Frame(self.PNotebook1)
         self.PNotebook1.add(self.PNotebook1_t1, padding=3)
         self.PNotebook1.tab(0, text='''类型识别''', compound="right"
-                ,underline='''-1''', )
+                            ,underline='''-1''', )
         self.PNotebook1_t2 = tk.Frame(self.PNotebook1)
         self.PNotebook1.add(self.PNotebook1_t2, padding=3)
         self.PNotebook1.tab(1, text='''流量统计''', compound="right"
-                ,underline='''-1''', )
+                            ,underline='''-1''', )
         self.Model_Result = tk.Frame(self.PNotebook1)
         self.PNotebook1.add(self.Model_Result, padding=3)
         self.PNotebook1.tab(2, text='''模型效果''', compound="left"
-                ,underline='''-1''', )
+                            ,underline='''-1''', )
 
         self.Frame1_1 = tk.Frame(self.PNotebook1_t1)
         self.Frame1_1.place(relx=0.887, rely=0.017, relheight=0.967
-                , relwidth=0.1)
+                            , relwidth=0.1)
         self.Frame1_1.configure(relief='groove')
         self.Frame1_1.configure(borderwidth="2")
         self.Frame1_1.configure(relief="groove")
@@ -170,34 +168,34 @@ class Toplevel1:
 
         self.PicList = ttk.Combobox(self.Frame1_1)
         self.PicList.place(relx=0.081, rely=0.223, relheight=0.548
-                , relwidth=0.887)
+                           , relwidth=0.887)
         self.PicList.configure(font="-family {Noto Sans CJK SC} -size 10")
         self.PicList.configure(textvariable=self.combobox)
 
         self.Frame1_2 = tk.Frame(self.PNotebook1_t1)
         self.Frame1_2.place(relx=0.169, rely=0.017, relheight=0.967
-                , relwidth=0.705)
+                            , relwidth=0.705)
         self.Frame1_2.configure(relief='groove')
         self.Frame1_2.configure(borderwidth="2")
         self.Frame1_2.configure(relief="groove")
 
         self.Canvas = tk.Canvas(self.Frame1_2)
         self.Canvas.place(relx=0.011, rely=0.016, relheight=0.961
-                , relwidth=0.975)
+                          , relwidth=0.975)
         self.Canvas.configure(borderwidth="2")
         self.Canvas.configure(relief="ridge")
         self.Canvas.configure(selectbackground="#d9d9d9")
 
         self.Frame1 = tk.Frame(self.PNotebook1_t1)
         self.Frame1.place(relx=0.016, rely=0.032, relheight=0.967
-                , relwidth=0.141)
+                          , relwidth=0.141)
         self.Frame1.configure(relief='groove')
         self.Frame1.configure(borderwidth="2")
         self.Frame1.configure(relief="groove")
 
         self.type_amount_label = tk.Label(self.Frame1)
         self.type_amount_label.place(relx=0.057, rely=0.016, height=47
-                , width=150)
+                                     , width=150)
         self.type_amount_label.configure(activebackground="#d9d9d9")
         self.type_amount_label.configure(anchor='w')
         self.type_amount_label.configure(compound='left')
@@ -206,7 +204,7 @@ class Toplevel1:
 
         self.type_amount_list = ScrolledText(self.Frame1)
         self.type_amount_list.place(relx=0.057, rely=0.082, relheight=0.684
-                , relwidth=0.829)
+                                    , relwidth=0.829)
         self.type_amount_list.configure(background="white")
         self.type_amount_list.configure(font="-family {Noto Sans CJK SC} -size 6")
         self.type_amount_list.configure(insertborderwidth="3")
@@ -215,7 +213,7 @@ class Toplevel1:
 
         self.DayMode = tk.Radiobutton(self.Frame1)
         self.DayMode.place(relx=0.057, rely=0.765, relheight=0.058
-                , relwidth=0.857)
+                           , relwidth=0.857)
         self.DayMode.configure(activebackground="#d9d9d9")
         self.DayMode.configure(anchor='w')
         self.DayMode.configure(compound='left')
@@ -226,7 +224,7 @@ class Toplevel1:
 
         self.NightMode = tk.Radiobutton(self.Frame1)
         self.NightMode.place(relx=0.057, rely=0.819, relheight=0.074
-                , relwidth=0.857)
+                             , relwidth=0.857)
         self.NightMode.configure(activebackground="#d9d9d9")
         self.NightMode.configure(anchor='w')
         self.NightMode.configure(compound='left')
@@ -243,27 +241,27 @@ class Toplevel1:
 
         self.TNotebook1 = ttk.Notebook(self.Model_Result)
         self.TNotebook1.place(relx=0.008, rely=0.015, relheight=0.964
-                , relwidth=0.986)
+                              , relwidth=0.986)
         self.R_curve_Tab = tk.Frame(self.TNotebook1)
         self.TNotebook1.add(self.R_curve_Tab, padding=3)
         self.TNotebook1.tab(0, text='''R曲线''', compound="left", underline='''-1'''
-                ,)
+                            ,)
         self.P_curve_Tab = tk.Frame(self.TNotebook1)
         self.TNotebook1.add(self.P_curve_Tab, padding=3)
         self.TNotebook1.tab(1, text='''P曲线''', compound="left", underline='''-1'''
-                ,)
+                            ,)
         self.PR_curve_Tabs = tk.Frame(self.TNotebook1)
         self.TNotebook1.add(self.PR_curve_Tabs, padding=3)
         self.TNotebook1.tab(2, text='''PR曲线''', compound="left"
-                ,underline='''-1''', )
+                            ,underline='''-1''', )
         self.F1_curve_Tab = tk.Frame(self.TNotebook1)
         self.TNotebook1.add(self.F1_curve_Tab, padding=3)
         self.TNotebook1.tab(3, text='''F1曲线''', compound="left"
-                ,underline='''-1''', )
+                            ,underline='''-1''', )
 
         self.R_curve = tk.Canvas(self.R_curve_Tab)
         self.R_curve.place(relx=0.008, rely=0.017, relheight=0.956
-                , relwidth=0.984)
+                           , relwidth=0.984)
         self.R_curve.configure(borderwidth="2")
         self.R_curve.configure(cursor="fleur")
         self.R_curve.configure(relief="ridge")
@@ -271,21 +269,21 @@ class Toplevel1:
 
         self.P_curve = tk.Canvas(self.P_curve_Tab)
         self.P_curve.place(relx=0.008, rely=0.017, relheight=0.956
-                , relwidth=0.984)
+                           , relwidth=0.984)
         self.P_curve.configure(borderwidth="2")
         self.P_curve.configure(relief="ridge")
         self.P_curve.configure(selectbackground="#d9d9d9")
 
         self.PR_curve = tk.Canvas(self.PR_curve_Tabs)
         self.PR_curve.place(relx=0.008, rely=0.017, relheight=0.956
-                , relwidth=0.984)
+                            , relwidth=0.984)
         self.PR_curve.configure(borderwidth="2")
         self.PR_curve.configure(relief="ridge")
         self.PR_curve.configure(selectbackground="#d9d9d9")
 
         self.F1_curve = tk.Canvas(self.F1_curve_Tab)
         self.F1_curve.place(relx=0.008, rely=0.017, relheight=0.956
-                , relwidth=0.983)
+                            , relwidth=0.983)
         self.F1_curve.configure(borderwidth="2")
         self.F1_curve.configure(relief="ridge")
         self.F1_curve.configure(selectbackground="#d9d9d9")
@@ -293,12 +291,19 @@ class Toplevel1:
         self.PNotebook1.bind('<ButtonRelease-1>',_button_release)
         self.PNotebook1.bind('<Motion>',_mouse_over)
 
+        # 绑定切换标签事件
+        self.PNotebook1.bind("<<NotebookTabChanged>>", self.on_tab_change)
+
         # 根据选择的模式（白天模式或夜间模式）动态加载不同的曲线图像到Canvas中
         self.DayMode.configure(command=self.load_curves)
         self.NightMode.configure(command=self.load_curves)
 
         # Initialize the curves with default images
         self.load_curves()
+
+    def on_tab_change(self, event):
+        if self.PNotebook1.select() == str(self.PNotebook1_t2):
+            draw_charts.draw_charts(self.Canvas2)
 
     def load_curves(self):
         mode = "A" if self.selectedButton.get() == 0 else "B"
@@ -343,7 +348,7 @@ def _button_press(event):
 def _button_release(event):
     widget = event.widget
     if not widget.instate(['pressed']):
-            return
+        return
     element = widget.identify(event.x, event.y)
     try:
         index = widget.index("@%d,%d" % (event.x, event.y))
