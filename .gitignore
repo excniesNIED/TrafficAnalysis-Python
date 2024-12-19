@@ -2,4 +2,7 @@
 backups/*
 runs/trainB/v5_Dy2024_287.pt
 runs/trainA/v5_Dy2024_287.pt
-/__pycache__
+/__pycache__/*
+
+yolov5n.pt
+yolov5s.pt

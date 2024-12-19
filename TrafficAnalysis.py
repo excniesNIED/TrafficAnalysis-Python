@@ -10,6 +10,8 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter.constants import *
 import os.path
+import os
+from PIL import Image, ImageTk
 
 _location = os.path.dirname(__file__)
 
@@ -102,7 +104,7 @@ class Toplevel1:
         top.minsize(1, 1)
         top.maxsize(3409, 1896)
         top.resizable(1,  1)
-        top.title("Toplevel 0")
+        top.title("交通流量分析系统")
 
         self.top = top
         self.combobox = tk.StringVar()
@@ -137,13 +139,13 @@ class Toplevel1:
         self.ChooseDir = tk.Button(self.Frame1_1)
         self.ChooseDir.place(relx=0.081, rely=0.017, height=35, width=110)
         self.ChooseDir.configure(activebackground="#d9d9d9")
-        self.ChooseDir.configure(font="-family {Noto Sans CJK SC} -size 6")
+        self.ChooseDir.configure(font="-family {Noto Sans CJK SC} -size 7")
         self.ChooseDir.configure(text='''选择文件夹''')
 
         self.PreviousPic = tk.Button(self.Frame1_1)
         self.PreviousPic.place(relx=0.081, rely=0.082, height=35, width=110)
         self.PreviousPic.configure(activebackground="#d9d9d9")
-        self.PreviousPic.configure(font="-family {Noto Sans CJK SC} -size 6")
+        self.PreviousPic.configure(font="-family {Noto Sans CJK SC} -size 7")
         self.PreviousPic.configure(text='''上一张''')
 
         self.RecgnizeLabel = tk.Button(self.Frame1_1)
@@ -167,7 +169,7 @@ class Toplevel1:
         self.NextPic = tk.Button(self.Frame1_1)
         self.NextPic.place(relx=0.081, rely=0.146, height=35, width=110)
         self.NextPic.configure(activebackground="#d9d9d9")
-        self.NextPic.configure(font="-family {Noto Sans CJK SC} -size 6")
+        self.NextPic.configure(font="-family {Noto Sans CJK SC} -size 7")
         self.NextPic.configure(text='''下一张''')
 
         self.PicList = ttk.Combobox(self.Frame1_1)
@@ -294,6 +296,39 @@ class Toplevel1:
         self.PNotebook1.bind('<Button-1>',_button_press)
         self.PNotebook1.bind('<ButtonRelease-1>',_button_release)
         self.PNotebook1.bind('<Motion>',_mouse_over)
+
+        # 根据选择的模式（白天模式或夜间模式）动态加载不同的曲线图像到Canvas中
+        self.DayMode.configure(command=self.load_curves)
+        self.NightMode.configure(command=self.load_curves)
+
+        # Initialize the curves with default images
+        self.load_curves()
+
+    def load_curves(self):
+        mode = "A" if self.selectedButton.get() == 0 else "B"
+        base_path = f"./runs/train{mode}"
+
+        self.load_image(self.R_curve, os.path.join(base_path, "R_curve.png"))
+        self.load_image(self.P_curve, os.path.join(base_path, "P_curve.png"))
+        self.load_image(self.PR_curve, os.path.join(base_path, "PR_curve.png"))
+        self.load_image(self.F1_curve, os.path.join(base_path, "F1_curve.png"))
+
+    def load_image(self, canvas, image_path):
+        if os.path.exists(image_path):
+            img = Image.open(image_path)
+            # 使用 Image.Resampling.LANCZOS 替代 Image.ANTIALIAS
+            img.thumbnail((canvas.winfo_width(), 550), Image.Resampling.LANCZOS)
+            photo = ImageTk.PhotoImage(img)
+            canvas.create_image(0, 0, anchor=tk.NW, image=photo)
+            canvas.image = photo  # 保持对图像的引用，避免被垃圾回收
+        else:
+            canvas.delete("all")  # 清除画布内容
+            print(f"Image not found: {image_path}")
+
+    def toggle_night_mode(self):
+        if self.selectedButton.get() == 1:
+            self.DayMode.deselect()  # 手动取消白天模式的选中状态
+        self.load_curves()  # Reload the curves based on the selected mode
 
     def toggle_night_mode(self):
         if self.selectedButton.get() == 1:
