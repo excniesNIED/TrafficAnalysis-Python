@@ -104,6 +104,10 @@ class Toplevel1:
         self.top = top
         self.combobox = tk.StringVar()
         self.selectedButton = tk.IntVar()
+        self.current_image_index = 0
+        self.image_list = []
+        self.label_dir = ""
+        self.image_dir = ""
 
         _style_code()
         PNOTEBOOK="ClosetabNotebook"
@@ -136,12 +140,14 @@ class Toplevel1:
         self.ChooseDir.configure(activebackground="#d9d9d9")
         self.ChooseDir.configure(font="-family {Noto Sans CJK SC} -size 7")
         self.ChooseDir.configure(text='''选择文件夹''')
+        self.ChooseDir.configure(command=self.load_images)
 
         self.PreviousPic = tk.Button(self.Frame1_1)
         self.PreviousPic.place(relx=0.081, rely=0.082, height=35, width=110)
         self.PreviousPic.configure(activebackground="#d9d9d9")
         self.PreviousPic.configure(font="-family {Noto Sans CJK SC} -size 7")
         self.PreviousPic.configure(text='''上一张''')
+        self.PreviousPic.configure(command=self.show_previous_image)
 
         self.RecgnizeLabel = tk.Button(self.Frame1_1)
         self.RecgnizeLabel.place(relx=0.081, rely=0.794, height=35, width=110)
@@ -163,6 +169,7 @@ class Toplevel1:
         self.NextPic.configure(activebackground="#d9d9d9")
         self.NextPic.configure(font="-family {Noto Sans CJK SC} -size 7")
         self.NextPic.configure(text='''下一张''')
+        self.NextPic.configure(command=self.show_next_image)
 
         self.PicList = ttk.Combobox(self.Frame1_1)
         self.PicList.place(relx=0.081, rely=0.223, relheight=0.548
@@ -299,8 +306,6 @@ class Toplevel1:
         # Initialize the curves with default images
         self.load_curves()
 
-
-
     def on_tab_change(self, event):
         if self.PNotebook1.select() == str(self.PNotebook1_t2):
             draw_charts.draw_charts(self.Canvas2)
@@ -331,7 +336,82 @@ class Toplevel1:
             self.DayMode.deselect()  # 手动取消白天模式的选中状态
         self.load_curves()  # Reload the curves based on the selected mode
 
-        # 定义 run_detect_script 方法
+    def load_images(self):
+        mode = "exp" if self.selectedButton.get() == 0 else "exp2"
+        self.image_dir = f"runs/detect/{mode}/images"
+        self.label_dir = f"runs/detect/{mode}/labels"
+
+        if not os.path.exists(self.image_dir) or not os.path.exists(self.label_dir):
+            messagebox.showerror("错误", "指定的文件夹不存在")
+            return
+
+        self.image_list = sorted([f for f in os.listdir(self.image_dir) if f.endswith(('.png', '.jpg', '.jpeg'))])
+        self.PicList['values'] = [os.path.splitext(img)[0] for img in self.image_list]
+        self.current_image_index = 0
+        self.show_image()
+
+    def show_image(self):
+        if not self.image_list:
+            return
+
+        img_path = os.path.join(self.image_dir, self.image_list[self.current_image_index])
+        img = Image.open(img_path)
+        img.thumbnail((self.Canvas.winfo_width(), self.Canvas.winfo_height()), Image.Resampling.LANCZOS)
+        photo = ImageTk.PhotoImage(img)
+        self.Canvas.create_image(0, 0, anchor=tk.NW, image=photo)
+        self.Canvas.image = photo
+
+        self.update_label_count()
+
+    def show_next_image(self):
+        if not self.image_list:
+            return
+
+        self.current_image_index = (self.current_image_index + 1) % len(self.image_list)
+        self.show_image()
+
+    def show_previous_image(self):
+        if not self.image_list:
+            return
+
+        self.current_image_index = (self.current_image_index - 1) % len(self.image_list)
+        self.show_image()
+
+    def update_label_count(self):
+        if not self.image_list:
+            return
+
+        label_file = os.path.join(self.label_dir, os.path.splitext(self.image_list[self.current_image_index])[0] + ".txt")
+        if not os.path.exists(label_file):
+            self.type_amount_list.delete(1.0, tk.END)
+            self.type_amount_list.insert(tk.END, "无标签文件")
+            return
+
+        class_mapping = {
+            0: 'bus',
+            1: 'traffic light',
+            2: 'traffic sign',
+            3: 'person',
+            4: 'bike',
+            5: 'truck',
+            6: 'motor',
+            7: 'car',
+            8: 'rider'
+        }
+
+        class_count = {v: 0 for v in class_mapping.values()}
+
+        with open(label_file, 'r') as f:
+            for line in f:
+                class_id = int(line.split()[0])
+                if class_id in class_mapping:
+                    class_count[class_mapping[class_id]] += 1
+
+        self.type_amount_list.delete(1.0, tk.END)
+        for cls, count in class_count.items():
+            self.type_amount_list.insert(tk.END, f"{cls}: {count}\n")
+
+    # 定义 run_detect_script 方法
     def run_detect_script(self):
         if os.name == 'nt':  # Windows 系统
             subprocess.Popen(["python", "detect.py"], creationflags=subprocess.CREATE_NEW_CONSOLE)
