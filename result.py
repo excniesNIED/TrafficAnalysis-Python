@@ -7,26 +7,37 @@ def natural_sort_key(s):
     return [int(text) if text.isdigit() else text.lower() for text in re.split('([0-9]+)', s)]
 
 def summarize_labels(label_dirs, output_csv):
+    # 类别编号到类别名称的映射
+    category_mapping = {
+        0: 'bus',
+        1: 'traffic light',
+        2: 'traffic sign',
+        3: 'person',
+        4: 'bike',
+        5: 'truck',
+        6: 'motor',
+        7: 'car',
+        8: 'rider'
+    }
+
     results = []
 
     for label_dir in label_dirs:
         # 按自然排序顺序遍历文件
         for file_name in sorted(os.listdir(label_dir), key=natural_sort_key):
             if file_name.endswith('.txt'):
-                people_num = 0
-                vehicle_num = 0
+                category_counts = {category: 0 for category in category_mapping.values()}
+
                 with open(os.path.join(label_dir, file_name), 'r') as file:
                     for line in file:
-                        category = int(line.split()[0])
-                        if category == 3:
-                            people_num += 1
-                        elif category in [0, 4, 5, 6, 7]:
-                            vehicle_num += 1
+                        category_id = int(line.split()[0])
+                        category_name = category_mapping.get(category_id, 'unknown')
+                        if category_name != 'unknown':
+                            category_counts[category_name] += 1
 
                 results.append({
                     'image_name': file_name.replace('.txt', ''),
-                    'people_num': people_num,
-                    'vehicle_num': vehicle_num,
+                    **category_counts
                 })
 
     # 将结果转换为DataFrame
@@ -38,12 +49,12 @@ def summarize_labels(label_dirs, output_csv):
 
 # 标签文件所在目录
 label_dirs = [
-    r".\runs\detect\exp\labels",
-    r".\runs\detect\exp2\labels"
+    r"./runs/detect/exp/labels",
+    r"./runs/detect/exp2/labels"
 ]
 
 # 输出CSV文件的路径
-output_csv = r".\Dy2024_287.csv"
+output_csv = r"./result.csv"
 
 # 调用函数
 summarize_labels(label_dirs, output_csv)
