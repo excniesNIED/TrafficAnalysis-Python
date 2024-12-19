@@ -1,8 +1,9 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter.constants import *
-import os.path
 import os
+import subprocess
+from tkinter import messagebox
 from PIL import Image, ImageTk
 import draw_charts  # 导入 draw_charts.py
 import sys
@@ -120,7 +121,7 @@ class Toplevel1:
                             ,underline='''-1''', )
         self.Model_Result = tk.Frame(self.PNotebook1)
         self.PNotebook1.add(self.Model_Result, padding=3)
-        self.PNotebook1.tab(2, text='''模型效果''', compound="left"
+        self.PNotebook1.tab(2, text='''模型性能''', compound="left"
                             ,underline='''-1''', )
 
         self.Frame1_1 = tk.Frame(self.PNotebook1_t1)
@@ -144,21 +145,18 @@ class Toplevel1:
 
         self.RecgnizeLabel = tk.Button(self.Frame1_1)
         self.RecgnizeLabel.place(relx=0.081, rely=0.794, height=35, width=110)
-        self.RecgnizeLabel.configure(activebackground="#d9d9d9")
-        self.RecgnizeLabel.configure(font="-family {Noto Sans CJK SC} -size 7")
         self.RecgnizeLabel.configure(text='''识别''')
+        self.RecgnizeLabel.configure(command=self.run_detect_script)  # 绑定 run_detect_script 方法
 
         self.SaveLabel = tk.Button(self.Frame1_1)
         self.SaveLabel.place(relx=0.081, rely=0.86, height=35, width=110)
-        self.SaveLabel.configure(activebackground="#d9d9d9")
-        self.SaveLabel.configure(font="-family {Noto Sans CJK SC} -size 7")
         self.SaveLabel.configure(text='''保存''')
+        self.SaveLabel.configure(command=self.run_result_script)  # 绑定 run_result_script 方法
 
         self.DeleteLabel = tk.Button(self.Frame1_1)
         self.DeleteLabel.place(relx=0.081, rely=0.925, height=35, width=110)
-        self.DeleteLabel.configure(activebackground="#d9d9d9")
-        self.DeleteLabel.configure(font="-family {Noto Sans CJK SC} -size 7")
         self.DeleteLabel.configure(text='''销毁''')
+        self.DeleteLabel.configure(command=self.delete_labels)  # 绑定 delete_labels 方法
 
         self.NextPic = tk.Button(self.Frame1_1)
         self.NextPic.place(relx=0.081, rely=0.146, height=35, width=110)
@@ -301,6 +299,8 @@ class Toplevel1:
         # Initialize the curves with default images
         self.load_curves()
 
+
+
     def on_tab_change(self, event):
         if self.PNotebook1.select() == str(self.PNotebook1_t2):
             draw_charts.draw_charts(self.Canvas2)
@@ -331,9 +331,33 @@ class Toplevel1:
             self.DayMode.deselect()  # 手动取消白天模式的选中状态
         self.load_curves()  # Reload the curves based on the selected mode
 
-    def toggle_night_mode(self):
-        if self.selectedButton.get() == 1:
-            self.DayMode.deselect()  # 手动取消白天模式的选中状态
+        # 定义 run_detect_script 方法
+    def run_detect_script(self):
+        if os.name == 'nt':  # Windows 系统
+            subprocess.Popen(["python", "detect.py"], creationflags=subprocess.CREATE_NEW_CONSOLE)
+        else:  # Linux 或 macOS
+            subprocess.Popen(["gnome-terminal", "--", "python3", "detect.py"])
+
+    # 定义 run_result_script 方法
+    def run_result_script(self):
+        if os.name == 'nt':  # Windows 系统
+            subprocess.Popen(["python", "result.py"], creationflags=subprocess.CREATE_NEW_CONSOLE)
+        else:  # Linux 或 macOS
+            subprocess.Popen(["gnome-terminal", "--", "python3", "result.py"])
+
+    # 定义 delete_labels 方法
+    def delete_labels(self):
+        folders = ["runs/detect/exp/labels", "runs/detect/exp2/labels"]
+        for folder in folders:
+            if os.path.exists(folder):
+                for file in os.listdir(folder):
+                    file_path = os.path.join(folder, file)
+                    try:
+                        if os.path.isfile(file_path):
+                            os.unlink(file_path)
+                    except Exception as e:
+                        print(e)
+        messagebox.showinfo("提示", "标签已清空")
 
 # The following code is add to handle mouse events with the close icons
 # in PNotebooks widgets.
