@@ -235,7 +235,7 @@ def run(
                 p, im0, frame = path, im0s.copy(), getattr(dataset, "frame", 0)
 
             p = Path(p)  # to Path
-            save_path = str(save_dir / p.name)  # im.jpg
+            save_path = str(save_dir / "images" / p.name)  # im.jpg
             txt_path = str(save_dir / "labels" / p.stem) + ("" if dataset.mode == "image" else f"_{frame}")  # im.txt
             s += "{:g}x{:g} ".format(*im.shape[2:])  # print string
             gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
@@ -290,6 +290,7 @@ def run(
 
             # Save results (image with detections)
             if save_img:
+                (save_dir / "images").mkdir(parents=True, exist_ok=True)  # ensure images directory exists
                 if dataset.mode == "image":
                     cv2.imwrite(save_path, im0)
                 else:  # 'video' or 'stream'
