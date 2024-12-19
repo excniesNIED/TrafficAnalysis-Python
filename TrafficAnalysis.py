@@ -112,24 +112,24 @@ class Toplevel1:
         PNOTEBOOK="ClosetabNotebook"
         self.PNotebook1 = ttk.Notebook(self.top)
         self.PNotebook1.place(relx=0.016, rely=0.069, relheight=0.903
-                , relwidth=0.97)
+                              , relwidth=0.97)
         self.PNotebook1.configure(style=PNOTEBOOK)
         self.PNotebook1_t1 = tk.Frame(self.PNotebook1)
         self.PNotebook1.add(self.PNotebook1_t1, padding=3)
         self.PNotebook1.tab(0, text='''类型识别''', compound="right"
-                ,underline='''-1''', )
+                            ,underline='''-1''', )
         self.PNotebook1_t2 = tk.Frame(self.PNotebook1)
         self.PNotebook1.add(self.PNotebook1_t2, padding=3)
         self.PNotebook1.tab(1, text='''流量统计''', compound="right"
-                ,underline='''-1''', )
+                            ,underline='''-1''', )
         self.PNotebook1_t3 = tk.Frame(self.PNotebook1)
         self.PNotebook1.add(self.PNotebook1_t3, padding=3)
         self.PNotebook1.tab(2, text='''模型效果''', compound="left"
-                ,underline='''-1''', )
+                            ,underline='''-1''', )
 
         self.Frame1_1 = tk.Frame(self.PNotebook1_t1)
         self.Frame1_1.place(relx=0.887, rely=0.017, relheight=0.968
-                , relwidth=0.1)
+                            , relwidth=0.1)
         self.Frame1_1.configure(relief='groove')
         self.Frame1_1.configure(borderwidth="2")
         self.Frame1_1.configure(relief="groove")
@@ -166,7 +166,7 @@ class Toplevel1:
 
         self.PicList = ttk.Combobox(self.Frame1_1)
         self.PicList.place(relx=0.081, rely=0.223, relheight=0.548
-                , relwidth=0.887)
+                           , relwidth=0.887)
         self.PicList.configure(font="-family {Noto Sans CJK SC} -size 10")
         self.PicList.configure(textvariable=self.combobox)
 
@@ -178,7 +178,7 @@ class Toplevel1:
 
         self.Frame1_2 = tk.Frame(self.PNotebook1_t1)
         self.Frame1_2.place(relx=0.169, rely=0.015, relheight=0.968
-                , relwidth=0.705)
+                            , relwidth=0.705)
         self.Frame1_2.configure(relief='groove')
         self.Frame1_2.configure(borderwidth="2")
         self.Frame1_2.configure(relief="groove")
@@ -192,14 +192,14 @@ class Toplevel1:
 
         self.Frame1 = tk.Frame(self.PNotebook1_t1)
         self.Frame1.place(relx=0.016, rely=0.032, relheight=0.966
-                , relwidth=0.141)
+                          , relwidth=0.141)
         self.Frame1.configure(relief='groove')
         self.Frame1.configure(borderwidth="2")
         self.Frame1.configure(relief="groove")
 
         self.type_amount_label = tk.Label(self.Frame1)
         self.type_amount_label.place(relx=0.057, rely=0.016, height=46
-                , width=150)
+                                     , width=150)
         self.type_amount_label.configure(activebackground="#d9d9d9")
         self.type_amount_label.configure(anchor='w')
         self.type_amount_label.configure(compound='left')
@@ -208,29 +208,29 @@ class Toplevel1:
 
         self.NightMode = tk.Radiobutton(self.Frame1)
         self.NightMode.place(relx=0.057, rely=0.83, relheight=0.073
-                , relwidth=0.857)
+                             , relwidth=0.857)
         self.NightMode.configure(activebackground="#d9d9d9")
         self.NightMode.configure(anchor='w')
         self.NightMode.configure(compound='left')
         self.NightMode.configure(font="-family {Noto Sans CJK SC} -size 9")
         self.NightMode.configure(justify='left')
         self.NightMode.configure(text='''夜间模式''')
-        self.NightMode.configure(variable=self.selectedButton)
+        self.NightMode.configure(variable=self.selectedButton, value=1, command=self.toggle_night_mode)
 
         self.DayMode = tk.Radiobutton(self.Frame1)
         self.DayMode.place(relx=0.057, rely=0.764, relheight=0.057
-                , relwidth=0.857)
+                           , relwidth=0.857)
         self.DayMode.configure(activebackground="#d9d9d9")
         self.DayMode.configure(anchor='w')
         self.DayMode.configure(compound='left')
         self.DayMode.configure(font="-family {Noto Sans CJK SC} -size 9")
         self.DayMode.configure(justify='left')
         self.DayMode.configure(text='''白天模式''')
-        self.DayMode.configure(variable=self.selectedButton)
+        self.DayMode.configure(variable=self.selectedButton, value=0)
 
         self.type_amount_list = ScrolledText(self.Frame1)
         self.type_amount_list.place(relx=0.057, rely=0.081, relheight=0.685
-                , relwidth=0.829)
+                                    , relwidth=0.829)
         self.type_amount_list.configure(background="white")
         self.type_amount_list.configure(font="-family {Noto Sans CJK SC} -size 6")
         self.type_amount_list.configure(insertborderwidth="3")
@@ -252,6 +252,10 @@ class Toplevel1:
         self.PNotebook1.bind('<ButtonRelease-1>',_button_release)
         self.PNotebook1.bind('<Motion>',_mouse_over)
 
+    def toggle_night_mode(self):
+        if self.selectedButton.get() == 1:
+            self.DayMode.deselect()  # 手动取消白天模式的选中状态
+
 # The following code is add to handle mouse events with the close icons
 # in PNotebooks widgets.
 def _button_press(event):
@@ -265,7 +269,7 @@ def _button_press(event):
 def _button_release(event):
     widget = event.widget
     if not widget.instate(['pressed']):
-            return
+        return
     element = widget.identify(event.x, event.y)
     try:
         index = widget.index("@%d,%d" % (event.x, event.y))
@@ -399,7 +403,3 @@ def start_up():
 
 if __name__ == '__main__':
     TrafficAnalysis_support.main()
-
-
-
-
